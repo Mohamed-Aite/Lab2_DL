@@ -1,0 +1,7 @@
+# Local datasets, checkpoints, caches, and notebook outputs
+data/
+*.pt
+*.pth
+*.ckpt
+__pycache__/
+.ipynb_checkpoints/
