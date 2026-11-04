@@ -101,16 +101,3 @@ one. The architecture must match the data and the objective. For MNIST
 classification, a small CNN is usually the most suitable solution. VGG16 and
 AlexNet demonstrate transfer learning, ViT demonstrates Transformer-based
 vision, and Faster R-CNN shows why the annotation format must match the task.
-
-## References
-
-- MNIST dataset:
-  https://www.kaggle.com/datasets/hojjatk/mnist-dataset
-- PyTorch classifier tutorial:
-  https://pytorch.org/tutorials/beginner/blitz/cifar10_tutorial.html
-- Torchvision Faster R-CNN:
-  https://pytorch.org/vision/stable/models/faster_rcnn.html
-- Dosovitskiy et al., *An Image is Worth 16x16 Words*:
-  https://arxiv.org/abs/2010.11929
-- Vision Transformer tutorial:
-  https://medium.com/mlearning-ai/vision-transformers-from-scratch-pytorch-a-step-by-step-guide-96c3313c2e0c
