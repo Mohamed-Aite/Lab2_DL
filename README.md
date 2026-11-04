@@ -12,8 +12,11 @@ The dataset is available on
 
 | File | Description |
 |---|---|
-| `Part1_MNIST_Deep_Learning/MNIST_GPU_Lab.ipynb` | Notebook containing the experiments and results |
-| `Part1_MNIST_Deep_Learning/mnist_gpu_lab.py` | Python implementation of the models |
+| `Part1_CNN_And_Transfer_Learning.ipynb` | Part 1 notebook: FCNN, CNN, Faster R-CNN, VGG16 and AlexNet |
+| `Part1_CNN_And_Transfer_Learning.py` | Part 1 Python code |
+| `Part2_Vision_Transformer.ipynb` | Part 2 notebook: ViT architecture and comparison |
+| `Part2_Vision_Transformer.py` | Part 2 Python code |
+| `mnist_gpu_lab.py` | Shared model and training definitions used by both parts |
 
 ## Part 1: CNN, Faster R-CNN and transfer learning
 
