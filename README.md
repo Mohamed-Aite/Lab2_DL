@@ -1,92 +1,113 @@
 # Lab 2 - Computer Vision with PyTorch
 
-This project follows the structure of [Lab 1](https://github.com/Mohamed-Aite/Lab1_DL)
-and applies PyTorch to computer-vision models on the MNIST dataset. The work is
-organized as a Colab/Kaggle-ready notebook and a reusable Python implementation.
+This project was completed for the Deep Learning course at the Faculté des
+Sciences et Techniques de Tanger. The objective was to use PyTorch and GPU
+computing to build and compare different computer-vision architectures on the
+MNIST handwritten-digit dataset.
 
-## Dataset
+The dataset is available on
+[Kaggle](https://www.kaggle.com/datasets/hojjatk/mnist-dataset).
 
-The experiments use the [MNIST dataset](https://www.kaggle.com/datasets/hojjatk/mnist-dataset).
-`torchvision.datasets.MNIST` downloads it automatically at runtime, so no dataset
-or checkpoint is stored in this repository.
-
-## Project Structure
+## Project files
 
 | File | Description |
 |---|---|
-| `Part1_MNIST_Deep_Learning/MNIST_GPU_Lab.ipynb` | Complete lab notebook with GPU setup, experiments, metrics and interpretation |
-| `Part1_MNIST_Deep_Learning/mnist_gpu_lab.py` | Reusable implementation of CNN, ViT, transfer models and Faster R-CNN target adapter |
+| `Part1_MNIST_Deep_Learning/MNIST_GPU_Lab.ipynb` | Notebook containing the experiments and results |
+| `Part1_MNIST_Deep_Learning/mnist_gpu_lab.py` | Python implementation of the models |
 
-## Part 1: MNIST Classification and Detection
-
-### FCNN baseline
-
-A fully connected neural network is included as a baseline. It flattens each
-28x28 image and uses two regularized dense hidden layers before the ten-class
-output, making the benefit of convolutional spatial inductive bias easier to
-interpret.
+## Part 1: CNN, Faster R-CNN and transfer learning
 
 ### CNN classifier
 
-The CNN uses two padded 3x3 convolution layers, batch normalization, ReLU,
-2x2 max pooling, dropout and fully connected layers. AdamW, label smoothing,
-weight decay and CUDA are used when available. The notebook reports test loss,
-accuracy, macro-F1 and elapsed training time.
+I first built a CNN to classify the handwritten digits. The network uses two
+convolution layers, batch normalization, ReLU activation, max-pooling layers,
+dropout and fully connected layers. The convolution layers help the model
+recognize local shapes such as edges and curves in the digits.
+
+The model uses AdamW as optimizer, a small weight decay for regularization and
+label smoothing to make the training more stable. When a GPU is available,
+the data and the model are moved to CUDA to reduce the training time.
+
+I also included a fully connected neural network as a simple baseline. Unlike
+the CNN, it first flattens the image and does not use the spatial structure of
+the pixels. This makes it useful for seeing why convolution is helpful for
+image classification.
 
 ### Faster R-CNN
 
-MNIST is an image-classification dataset and contains no bounding-box
-annotations. The lab therefore makes the adaptation explicit: it trains an
-11-class Faster R-CNN on one synthetic full-image box per digit, then reports
-the detector loss, label accuracy, macro-F1 and training time. These numbers
-are only a protocol demonstration; a genuine object-detection study should use
-meaningful digit boxes and report mAP/IoU.
+Faster R-CNN is normally used to find objects and draw bounding boxes around
+them. The original MNIST dataset only gives one label for each image and does
+not provide bounding boxes. To still study the architecture, I created a
+demonstration using one synthetic full-image box for each digit.
 
-### Transfer learning with VGG16 and AlexNet
+This comparison must be interpreted carefully. The Faster R-CNN result is not
+the same as a real object-detection experiment because the boxes are synthetic.
+A proper detection study would need images containing several digits or real
+annotations for the position of each digit. The detector section reports its
+loss, digit-label accuracy, macro-F1 and training time, while a real detection
+task should also use metrics such as IoU and mAP.
 
-The pretrained-model section resizes MNIST to 224x224, converts grayscale to
-three channels, applies ImageNet normalization, replaces the ten-class output
-head, and fine-tunes VGG16 and AlexNet. Set the torchvision `weights` argument
-to the relevant `DEFAULT` weights in an internet-enabled Colab run for strict
-ImageNet initialization.
+### VGG16 and AlexNet
+
+I then fine-tuned the pretrained VGG16 and AlexNet networks. Since these
+models were originally trained on ImageNet, the grayscale MNIST images are
+converted to three channels and resized to 224x224 pixels. Their final
+classification layers are replaced with new layers that predict the ten MNIST
+digits.
+
+These models show how transfer learning works, but they are much larger than
+necessary for MNIST. The resizing and extra parameters also make them more
+expensive than the small CNN.
+
+### Comparison
+
+The models are compared using test loss, accuracy, macro-F1 score and training
+time. The CNN is expected to provide the best balance between accuracy and
+computation for native 28x28 MNIST images. The fully connected model is a
+useful baseline, but it does not use image structure as effectively. VGG16 and
+AlexNet can benefit from pretrained features, although their size is not
+really justified for this small dataset. Faster R-CNN is not directly
+comparable unless meaningful detection annotations are available.
 
 ## Part 2: Vision Transformer
 
-The ViT is implemented from scratch with 7x7 image patches, a learnable class
-token, positional embeddings, Transformer encoder blocks and a ten-class
-classification head. Its loss, accuracy, macro-F1 and training time are
-compared with the CNN and transfer-learning models.
+For the second part, I implemented a Vision Transformer from scratch following
+the provided tutorial and the original ViT paper.
 
-## Running the lab
+The image is divided into 7x7 patches. Each patch is converted into an
+embedding, and a class token and positional embeddings are added. Transformer
+encoder blocks then learn relationships between the different patches. The
+class token is finally used to predict one of the ten digits.
 
-Open `Part1_MNIST_Deep_Learning/MNIST_GPU_Lab.ipynb` in Google Colab or Kaggle
-and enable a GPU runtime. For a short command-line smoke run:
+The ViT is compared with the models from Part 1 using the same loss, accuracy,
+macro-F1 and training-time measurements. A ViT is powerful because it can
+learn relationships between distant image regions, but MNIST images are very
+small and simple. For this reason, a CNN will often be easier to train and
+more efficient, while the ViT usually requires more tuning to show an
+advantage.
 
-```bash
-python "Part1_MNIST_Deep_Learning/mnist_gpu_lab.py" --epochs 2 --limit 12000
-```
+## Conclusion and personal synthesis
 
-For final reported values, remove `--limit`, increase the number of epochs,
-record the returned `loss`, `accuracy`, `macro_f1` and `seconds` values, and
-repeat runs with the same seed/configuration.
+This lab helped me understand the complete workflow of a computer-vision
+project with PyTorch: preparing the data, defining neural-network layers,
+choosing hyperparameters, using regularization, training on a GPU and
+comparing models with several metrics.
 
-## Interpretation and key takeaways
-
-CNNs are usually the strongest accuracy/compute baseline on native 28x28 MNIST,
-while the FCNN provides a useful non-convolutional reference.
-ViT demonstrates patch-token modelling, but generally needs more tuning and
-data to outperform a well-designed CNN on this small image size. VGG16 and
-AlexNet expose transfer learning and larger-backbone costs; their 224x224
-preprocessing is disproportionate for MNIST. Faster R-CNN is only the right
-choice when the task has meaningful object boxes.
-
-This lab provided practical experience with GPU device management, convolutional
-architectures, detection targets, transfer learning, Transformer tokenization,
-regularization, metric selection and critical comparison of models.
+The main lesson is that the most complex model is not automatically the best
+one. The architecture must match the data and the objective. For MNIST
+classification, a small CNN is usually the most suitable solution. VGG16 and
+AlexNet demonstrate transfer learning, ViT demonstrates Transformer-based
+vision, and Faster R-CNN shows why the annotation format must match the task.
 
 ## References
 
-- PyTorch classifier tutorial: https://pytorch.org/tutorials/beginner/blitz/cifar10_tutorial.html
-- Torchvision Faster R-CNN: https://pytorch.org/vision/stable/models/faster_rcnn.html
-- Dosovitskiy et al., *An Image is Worth 16x16 Words*: https://arxiv.org/abs/2010.11929
-- ViT tutorial: https://medium.com/mlearning-ai/vision-transformers-from-scratch-pytorch-a-step-by-step-guide-96c3313c2e0c
+- MNIST dataset:
+  https://www.kaggle.com/datasets/hojjatk/mnist-dataset
+- PyTorch classifier tutorial:
+  https://pytorch.org/tutorials/beginner/blitz/cifar10_tutorial.html
+- Torchvision Faster R-CNN:
+  https://pytorch.org/vision/stable/models/faster_rcnn.html
+- Dosovitskiy et al., *An Image is Worth 16x16 Words*:
+  https://arxiv.org/abs/2010.11929
+- Vision Transformer tutorial:
+  https://medium.com/mlearning-ai/vision-transformers-from-scratch-pytorch-a-step-by-step-guide-96c3313c2e0c
